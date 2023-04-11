@@ -1,8 +1,10 @@
 import { CiSearch } from 'react-icons/ci'
 import { HiChevronDown } from 'react-icons/hi'
+import WriteFormModal from '~/components/WriteFormModal'
 import { MainLayout } from '~/layouts'
 
 const HomePage = () => {
+
   return (
     <MainLayout>
 
@@ -149,6 +151,8 @@ const HomePage = () => {
           </div>
         </aside>
       </section>
+
+      <WriteFormModal />
     </MainLayout>
   )
 }
