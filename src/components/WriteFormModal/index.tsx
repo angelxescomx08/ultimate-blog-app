@@ -4,17 +4,18 @@ import { GlobalContext } from '~/context/GlobalContext'
 import { useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod'
+import { api } from '~/utils/api';
 
 type WriteFormType = {
     title: string;
     description: string;
-    body: string;
+    text: string;
 }
 
-const writeFormSchema = z.object({
+export const writeFormSchema = z.object({
     title: z.string().min(20),
     description: z.string().min(60),
-    body: z.string().min(100)
+    text: z.string().min(100)
 })
 
 const WriteFormModal = () => {
@@ -25,7 +26,17 @@ const WriteFormModal = () => {
         resolver: zodResolver(writeFormSchema)
     })
 
-    const onSubmit = (data: WriteFormType) => console.log(data);
+    const createPost = api.post.createPost.useMutation({
+        onSuccess: (data, variables, context) => {
+            console.log('Se ha creado correctamente');
+            console.log({ data, variables, context });
+        },
+        onError: (error, variables, context) => {
+            console.log({ error, variables, context });
+        }
+    })
+
+    const onSubmit = (data: WriteFormType) => createPost.mutate(data);
 
     return (
         <Modal isOpen={isWriteModalOpen} onClose={() => setIsWriteModalOpen(false)}>
@@ -55,16 +66,16 @@ const WriteFormModal = () => {
                 {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
                 <p className='text-sm text-red-500 text-left w-full pb-2'>{errors.description?.message}</p>
                 <textarea
-                    id="mainBody"
+                    id="mainText"
                     cols={10}
                     rows={10}
-                    placeholder='Blog main body...'
+                    placeholder='Blog main text...'
                     className='w-full h-full border border-gray-300 focus:border-gray-600 outline-none p-4 rounded-xl'
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    {...register('body')}
+                    {...register('text')}
                 />
                 {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
-                <p className='text-sm text-red-500 text-left w-full pb-2'>{errors.body?.message}</p>
+                <p className='text-sm text-red-500 text-left w-full pb-2'>{errors.text?.message}</p>
                 <button type='submit' onClick={() => { setIsWriteModalOpen(true) }} className='flex transition hover:border-gray-900 hover:text-gray-900 rounded items-center space-x-2 px-4 py-2.5 border border-gray-200'>
                     Publish
                 </button>
