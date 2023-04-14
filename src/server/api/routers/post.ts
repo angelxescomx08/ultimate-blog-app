@@ -1,6 +1,7 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { writeFormSchema } from "../../../components/WriteFormModal"
 import slugify from "slugify";
+import { z } from 'zod'
 
 export const postRouter = createTRPCRouter({
     createPost: protectedProcedure
@@ -25,7 +26,7 @@ export const postRouter = createTRPCRouter({
                 })
             }
         ),
-    getPost: publicProcedure.query(async ({ ctx: { prisma } }) => {
+    getPosts: publicProcedure.query(async ({ ctx: { prisma } }) => {
         const post = await prisma.post.findMany({
             orderBy: {
                 createdAt: 'desc'
@@ -40,5 +41,18 @@ export const postRouter = createTRPCRouter({
             }
         })
         return post
-    })
+    }),
+
+    getPost: publicProcedure
+        .input(z.object({
+            slug: z.string()
+        }))
+        .query(async ({ ctx: { prisma }, input: { slug } }) => {
+            const post = await prisma.post.findUnique({
+                where: {
+                    slug
+                }
+            })
+            return post
+        })
 })

@@ -7,7 +7,7 @@ import { HiChevronDown } from 'react-icons/hi'
 import Link from 'next/link'
 
 const MainSection = () => {
-    const posts = api.post.getPost.useQuery()
+    const posts = api.post.getPosts.useQuery()
     return (
         <main className='col-span-8 border-r border-gray-300 w-full h-full px-24'>
             <div className='flex flex-col space-y-4 w-full py-10'>
