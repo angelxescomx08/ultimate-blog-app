@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod'
 import { api } from '~/utils/api';
+import { toast } from 'react-hot-toast'
+import { AiOutlineLoading3Quarters } from 'react-icons/ai'
 
 type WriteFormType = {
     title: string;
@@ -22,13 +24,18 @@ const WriteFormModal = () => {
     const { isWriteModalOpen, setIsWriteModalOpen } = useContext(GlobalContext)
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    const { register, handleSubmit, formState: { errors } } = useForm<WriteFormType>({
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<WriteFormType>({
         resolver: zodResolver(writeFormSchema)
     })
 
+    const postRouter = api.useContext().post
+
     const createPost = api.post.createPost.useMutation({
-        onSuccess: (data, variables, context) => {
-            console.log('Se ha creado correctamente');
+        onSuccess: async (data, variables, context) => {
+            toast.success('Post created successfully');
+            setIsWriteModalOpen(false);
+            reset();
+            await postRouter.getPost.invalidate()
             console.log({ data, variables, context });
         },
         onError: (error, variables, context) => {
@@ -43,8 +50,15 @@ const WriteFormModal = () => {
             <form
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-misused-promises
                 onSubmit={handleSubmit(onSubmit)}
-                className='flex flex-col justify-center items-center'
+                className='flex relative flex-col justify-center items-center'
             >
+                {
+                    createPost.isLoading &&
+                    <div className='absolute w-full h-full flex items-center justify-center'>
+                        <AiOutlineLoading3Quarters className='animate-spin' />
+                    </div>
+                }
+
                 <input
                     type="text"
                     id="title"

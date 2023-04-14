@@ -2,8 +2,14 @@ import { CiSearch } from 'react-icons/ci'
 import { HiChevronDown } from 'react-icons/hi'
 import WriteFormModal from '~/components/WriteFormModal'
 import { MainLayout } from '~/layouts'
+import { api } from '~/utils/api'
+import { AiOutlineLoading3Quarters } from 'react-icons/ai'
+import dayjs from 'dayjs'
+import Image from 'next/image'
 
 const HomePage = () => {
+
+  const posts = api.post.getPost.useQuery()
 
   return (
     <MainLayout>
@@ -50,14 +56,36 @@ const HomePage = () => {
             </div>
           </div>
           <div className='w-full flex flex-col justify-center space-y-8'>
+
             {
-              Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className='flex group flex-col space-y-4 pb-8 border-b border-gray-300 last:border-none'>
+              posts.isLoading && <div className='w-full h-full flex justify-center items-center space-x-4'>
+                <div>
+                  <AiOutlineLoading3Quarters className='animate-spin' />
+                </div>
+                <div>
+                  Loading...
+                </div>
+              </div>
+            }
+
+            {
+              posts.isSuccess && posts.data.map((post) => (
+                <div key={post.id} className='flex group flex-col space-y-4 pb-8 border-b border-gray-300 last:border-none'>
                   <div>
                     <div className='flex w-full items-center space-x-2'>
-                      <div className='w-10 h-10 bg-gray-400 rounded-full'></div>
+                      <div className='w-10 h-10 bg-gray-400 rounded-full relative'>
+                        {
+                          post.author.image
+                          && <Image
+                            className='rounded-full'
+                            src={post.author.image}
+                            fill
+                            alt={post.author.name ?? ''}
+                          />
+                        }
+                      </div>
                       <div>
-                        <p className='font-semibold'>Angel Hernández &#x2022; 23 April. 2022 </p>
+                        <p className='font-semibold'>{post.author.name} &#x2022; {dayjs(post.createdAt).format('DD/MM/YYYY')} </p>
                         <p className='text-sm'>Founder, teacher & developer</p>
                       </div>
                     </div>
@@ -65,19 +93,10 @@ const HomePage = () => {
                   <div className='grid grid-cols-12 w-full gap-4'>
                     <div className='col-span-8 flex-col space-y-4'>
                       <p className='text-2xl font-bold text-gray-800 group-hover:underline decoration-indigo-600'>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Ab, blanditiis.
+                        {post.title}
                       </p>
                       <p className='text-sm text-gray-500 break-words'>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Tenetur quibusdam quos numquam, omnis deleniti perferendis
-                        aperiam doloribus, quo ipsa dolorum at unde alias? Obcaecati
-                        rem commodi distinctio, expedita dignissimos maxime hic
-                        similique natus odio, ipsum atque exercitationem? Quos
-                        perspiciatis dignissimos optio reprehenderit perferendis.
-                        Harum, quod expedita, reiciendis voluptates, numquam nam
-                        quae distinctio dolorem mollitia corporis doloremque dicta
-                        consequatur accusantium pariatur.
+                        {post.description}
                       </p>
                     </div>
                     <div className='col-span-4'>
@@ -91,7 +110,7 @@ const HomePage = () => {
                       </div>
                       <div className='flex space-x-2 items-center'>
                         {
-                          Array.from({ length: 4 }).map((_, i) => (
+                          Array.from({ length: 4 }).map((post, i) => (
                             <div key={i} className='rounded-3xl bg-gray-200/50 px-5 py-2'>
                               tag {i}
                             </div>
