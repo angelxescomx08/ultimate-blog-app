@@ -26,18 +26,36 @@ export const postRouter = createTRPCRouter({
                 })
             }
         ),
-    getPosts: publicProcedure.query(async ({ ctx: { prisma } }) => {
+    getPosts: publicProcedure.query(async ({ ctx: { prisma, session } }) => {
         const post = await prisma.post.findMany({
             orderBy: {
                 createdAt: 'desc'
             },
-            include: {
+            /* include: {
                 author: {
                     select: {
                         name: true,
                         image: true
                     }
                 }
+            } */
+            select: {
+                id: true,
+                slug: true,
+                title: true,
+                description: true,
+                createdAt: true,
+                author: {
+                    select: {
+                        name: true,
+                        image: true
+                    }
+                },
+                bookmarks: session?.user.id ? {
+                    where: {
+                        userId: session?.user.id
+                    }
+                } : false
             }
         })
         return post
@@ -95,4 +113,32 @@ export const postRouter = createTRPCRouter({
             })
         }),
 
+
+    bookmarkPost: protectedProcedure
+        .input(z.object({
+            postId: z.string()
+        }))
+        .mutation(async ({ ctx: { prisma, session }, input: { postId } }) => {
+            await prisma.bookmark.create({
+                data: {
+                    postId,
+                    userId: session.user.id
+                }
+            })
+        }),
+
+    removeBookmark: protectedProcedure
+        .input(z.object({
+            postId: z.string()
+        }))
+        .mutation(async ({ ctx: { prisma, session }, input: { postId } }) => {
+            await prisma.bookmark.delete({
+                where: {
+                    userId_postId: {
+                        userId: session.user.id,
+                        postId
+                    }
+                }
+            })
+        }),
 })
