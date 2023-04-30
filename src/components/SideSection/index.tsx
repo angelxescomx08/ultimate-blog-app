@@ -1,6 +1,12 @@
+import dayjs from 'dayjs';
+import Link from 'next/link';
 import React from 'react'
+import { api } from '~/utils/api'
 
 const SideSection = () => {
+    
+    const readingList = api.post.getReadingList.useQuery();
+
     return (
         <aside className='col-span-4 w-full p-6 flex flex-col space-y-4'>
             <div>
@@ -28,20 +34,24 @@ const SideSection = () => {
                 <h3 className='my-6 font-semibold text-lg'>Your reading list</h3>
                 <div className='flex flex-col space-y-8'>
                     {
-                        Array.from({ length: 4 }).map((_, i) => (
-                            <div key={i} className='flex space-x-6 items-center group'>
+                        readingList.data && readingList.data.map((bookmark) => (
+                            <Link href={`${bookmark.post.slug}`} key={bookmark.id} className='flex space-x-6 items-center group'>
                                 <div className='h-full w-2/5 bg-gray-300 rounded-xl aspect-square'></div>
                                 <div className='w-3/5 flex flex-col space-y-2'>
-                                    <div className='text-lg font-semibold group-hover:underline decoration-indigo-600'>Lorem ipsum dolor sit amet consectetur.</div>
-                                    <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Obcaecati nesciunt tempora nisi a nulla ipsam amet deserunt recusandae.</div>
+                                    <div className='text-lg font-semibold group-hover:underline decoration-indigo-600'>
+                                        {bookmark.post.title}
+                                    </div>
+                                    <div className='truncate'>
+                                        {bookmark.post.description}
+                                    </div>
                                     <div className='flex space-x-1 items-center w-full'>
                                         <div className='w-8 h-8 bg-gray-300 rounded-full'></div>
-                                        <div>Ángel Hernández &#x2022; </div>
-                                        <div>Dec 22, 2022</div>
+                                        <div>{bookmark.post.author.name} &#x2022; </div>
+                                        <div>{dayjs(bookmark.post.createdAt).format('DD/MM/YYYY')}</div>
                                     </div>
                                 </div>
 
-                            </div>
+                            </Link>
                         ))
                     }
                 </div>
