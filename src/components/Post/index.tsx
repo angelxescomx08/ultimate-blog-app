@@ -23,33 +23,33 @@ const Post = ({ ...post }: PostProps) => {
     })
 
     return (
-        <div key={post.id} className='flex group flex-col space-y-4 pb-8 border-b border-gray-300 last:border-none'>
-            <div>
-                <div className='flex w-full items-center space-x-2'>
-                    <div className='w-10 h-10 bg-gray-400 rounded-full relative'>
-                        {
-                            post.author.image
-                            && <Image
-                                className='rounded-full'
-                                src={post.author.image}
-                                fill
-                                sizes='100%'
-                                alt={post.author.name ?? ''}
-                            />
-                        }
-                    </div>
-                    <div>
-                        <p className='font-semibold'>{post.author.name} &#x2022; {dayjs(post.createdAt).format('DD/MM/YYYY')} </p>
-                        <p className='text-sm'>Founder, teacher & developer</p>
-                    </div>
+        <div key={post.id} className='flex flex-col space-y-4 pb-8 border-b border-gray-300 last:border-none'>
+            <Link href={`/user/${post.author.username}`} className='group flex w-full items-center space-x-2 cursor-pointer'>
+                <div className='w-10 h-10 bg-gray-400 rounded-full relative'>
+                    {
+                        post.author.image
+                        && <Image
+                            className='rounded-full'
+                            src={post.author.image}
+                            fill
+                            sizes='100%'
+                            alt={post.author.name ?? ''}
+                        />
+                    }
                 </div>
-            </div>
-            <Link href={`/${post.slug}`} className='grid grid-cols-12 w-full gap-4'>
-                <div className='col-span-8 flex-col space-y-4'>
+                <div>
+                    <p className='font-semibold'>
+                        <span className='group-hover:underline decoration-indigo-600'>{post.author.name}</span> &#x2022; {dayjs(post.createdAt).format('DD/MM/YYYY')} 
+                    </p>
+                    <p className='text-sm'>Founder, teacher & developer</p>
+                </div>
+            </Link>
+            <Link href={`/${post.slug}`} className='group h-44 grid grid-cols-12 w-full gap-4'>
+                <div className='col-span-8 flex-col space-y-4 h-full'>
                     <p className='text-2xl font-bold text-gray-800 group-hover:underline decoration-indigo-600'>
                         {post.title}
                     </p>
-                    <p className='text-sm text-gray-500 break-words'>
+                    <p className='text-sm text-gray-500 break-words truncate'>
                         {post.description}
                     </p>
                 </div>
