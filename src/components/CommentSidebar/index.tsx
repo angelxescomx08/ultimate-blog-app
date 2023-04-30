@@ -9,6 +9,7 @@ import { toast } from 'react-hot-toast';
 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime'
+import Image from 'next/image';
 dayjs.extend(relativeTime)
 
 type CommentSideProps = {
@@ -104,7 +105,7 @@ const CommentSidebar = ({ showCommentSidebar, setShowCommentSidebar, postId }: C
                                             <div className='flex w-full flex-col space-y-2 border-b last:border-none border-gray-300 pb-4' key={i}>
                                                 <div className='flex w-full items-center space-x-2'>
                                                     <div className='w-10 h-10 bg-gray-400 rounded-full relative'>
-
+                                                        <Image className='rounded-full' src={comment.author.image ?? ''} fill alt="" />
                                                     </div>
                                                     <div>
                                                         <p className='font-semibold'>

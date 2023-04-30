@@ -1,10 +1,11 @@
 import dayjs from 'dayjs';
+import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react'
 import { api } from '~/utils/api'
 
 const SideSection = () => {
-    
+
     const readingList = api.post.getReadingList.useQuery();
 
     return (
@@ -36,7 +37,9 @@ const SideSection = () => {
                     {
                         readingList.data && readingList.data.map((bookmark) => (
                             <Link href={`${bookmark.post.slug}`} key={bookmark.id} className='flex space-x-6 items-center group'>
-                                <div className='h-full w-2/5 bg-gray-300 rounded-xl aspect-square'></div>
+                                <div className='h-full w-2/5 bg-gray-300 rounded-xl aspect-square'>
+
+                                </div>
                                 <div className='w-3/5 flex flex-col space-y-2'>
                                     <div className='text-lg font-semibold group-hover:underline decoration-indigo-600'>
                                         {bookmark.post.title}
@@ -45,7 +48,9 @@ const SideSection = () => {
                                         {bookmark.post.description}
                                     </div>
                                     <div className='flex space-x-1 items-center w-full'>
-                                        <div className='w-8 h-8 bg-gray-300 rounded-full'></div>
+                                        <div className='relative w-8 h-8 bg-gray-300 rounded-full'>
+                                            <Image className='rounded-full' src={bookmark.post.author.image ?? ''} fill alt="" />
+                                        </div>
                                         <div>{bookmark.post.author.name} &#x2022; </div>
                                         <div>{dayjs(bookmark.post.createdAt).format('DD/MM/YYYY')}</div>
                                     </div>
