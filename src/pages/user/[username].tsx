@@ -7,11 +7,15 @@ import { BiEdit } from 'react-icons/bi'
 import { toast } from 'react-hot-toast'
 import { SlShareAlt } from 'react-icons/sl'
 import Post from '~/components/Post'
+import { useSession } from 'next-auth/react'
 
 
 const UserProfilePage = () => {
 
     const router = useRouter()
+
+    const currentUser = useSession()
+
     const userProfile = api.auth.getUserProfile.useQuery({
         username: router.query.username as string
     }, { enabled: !!router.query.username })
@@ -28,16 +32,22 @@ const UserProfilePage = () => {
                         <div className='relative h-44 bg-gradient-to-br w-full rounded-t-3xl from-rose-100 to-teal-100'>
                             <div className='absolute -bottom-10 left-12'>
                                 <div className='group w-32 h-32 rounded-full relative border-white border-2 bg-gray-100 cursor-pointer'>
-                                    <label htmlFor='avatarFile' className='cursor-pointer absolute flex items-center justify-center w-full h-full group-hover:bg-black/20 z-10 rounded-full transition'>
-                                        <BiEdit className='text-3xl hidden group-hover:block text-white' />
-                                        <input
-                                            type='file'
-                                            name='avatarFile'
-                                            id='avatarFile'
-                                            className='sr-only'
-                                            accept='image/*'
-                                        />
-                                    </label>
+                                    {
+                                        currentUser.data?.user.id === userProfile.data?.id
+                                        && <label
+                                            htmlFor='avatarFile'
+                                            className={`cursor-pointer absolute flex items-center justify-center w-full h-full group-hover:bg-black/20 z-10 rounded-full transition`}>
+                                            <BiEdit className='text-3xl hidden group-hover:block text-white' />
+                                            <input
+                                                type='file'
+                                                name='avatarFile'
+                                                id='avatarFile'
+                                                className='sr-only'
+                                                accept='image/*'
+                                            />
+
+                                        </label>
+                                    }
                                     {
                                         userProfile.data?.image &&
                                         <Image
