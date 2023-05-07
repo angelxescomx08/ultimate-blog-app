@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { type ChangeEvent, useState } from 'react'
 import { MainLayout } from '~/layouts'
 import { api } from '~/utils/api'
 import { BiEdit } from 'react-icons/bi'
@@ -8,6 +8,14 @@ import { toast } from 'react-hot-toast'
 import { SlShareAlt } from 'react-icons/sl'
 import Post from '~/components/Post'
 import { useSession } from 'next-auth/react'
+
+
+import { createClient } from '@supabase/supabase-js'
+import { env } from '~/env.mjs'
+
+// Create a single supabase client for interacting with your database
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, env.NEXT_PUBLIC_SUPABASE_PUBLIC_KEY)
+
 
 
 const UserProfilePage = () => {
@@ -23,6 +31,49 @@ const UserProfilePage = () => {
     const userPosts = api.auth.getUserPost.useQuery({
         username: router.query.username as string
     }, { enabled: !!router.query.username })
+
+    const [objectImage, setObjectImage] = useState('')
+    const [file, setFile] = useState<File | null>(null)
+
+    const userRoute = api.useContext().auth
+
+    const uploadAvatar = api.auth.uploadAvatar.useMutation({
+        onSuccess: () => {
+            if (userProfile.data?.username) {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                userRoute.getUserProfile.invalidate({
+                    username: router.query.username as string
+                })
+
+                toast.success('Avatar updated')
+            }
+        }
+    })
+
+    const handleChangeImage = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+
+            if (file.size > 1.5 * 1000000) {
+                return toast.error('Image should not be greater than 1MB')
+            }
+
+            setObjectImage(URL.createObjectURL(file))
+
+            const fileReader = new FileReader()
+
+            fileReader.onloadend = () => {
+                if (fileReader.result && userProfile.data?.username) {
+                    uploadAvatar.mutate({
+                        imageAsDataUrl: fileReader.result as string,
+                        username: userProfile.data?.username
+                    })
+                }
+            }
+
+            fileReader.readAsDataURL(file)
+        }
+    }
 
     return (
         <MainLayout>
@@ -44,15 +95,27 @@ const UserProfilePage = () => {
                                                 id='avatarFile'
                                                 className='sr-only'
                                                 accept='image/*'
+                                                onChange={handleChangeImage}
+                                                multiple={false}
                                             />
 
                                         </label>
                                     }
                                     {
-                                        userProfile.data?.image &&
+                                        !objectImage && userProfile.data?.image &&
                                         <Image
                                             className='rounded-full'
                                             src={userProfile.data?.image}
+                                            alt={userProfile.data?.name ?? ''}
+                                            fill
+                                        />
+                                    }
+
+                                    {
+                                        objectImage &&
+                                        <Image
+                                            className='rounded-full'
+                                            src={objectImage}
                                             alt={userProfile.data?.name ?? ''}
                                             fill
                                         />
