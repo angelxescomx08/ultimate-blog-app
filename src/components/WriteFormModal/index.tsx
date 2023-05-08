@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import Modal from '../Modal'
 import { GlobalContext } from '~/context/GlobalContext'
 import { useForm } from "react-hook-form";
@@ -7,6 +7,8 @@ import { z } from 'zod'
 import { api } from '~/utils/api';
 import { toast } from 'react-hot-toast'
 import { AiOutlineLoading3Quarters } from 'react-icons/ai'
+import TagsAutocompletion from '../TagsAutocompletion';
+import TagForm from '../TagForm';
 
 type WriteFormType = {
     title: string;
@@ -22,6 +24,8 @@ export const writeFormSchema = z.object({
 
 const WriteFormModal = () => {
     const { isWriteModalOpen, setIsWriteModalOpen } = useContext(GlobalContext)
+
+    const [isTagCreateModalOpen, setIsTagCreateModalOpen] = useState(false)
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const { register, handleSubmit, formState: { errors }, reset } = useForm<WriteFormType>({
@@ -46,7 +50,23 @@ const WriteFormModal = () => {
     const onSubmit = (data: WriteFormType) => createPost.mutate(data);
 
     return (
+
         <Modal isOpen={isWriteModalOpen} onClose={() => setIsWriteModalOpen(false)}>
+            <TagForm
+                isOpen={isTagCreateModalOpen} 
+                onClose={() => setIsWriteModalOpen(false)}
+            />
+
+            <div className='flex w-full space-x-4 items-center my-4'>
+                <div className='z-10 w-4/5'>
+                    <TagsAutocompletion />
+                </div>
+                <button
+                    onClick={() => { setIsTagCreateModalOpen(true) }}
+                    className='transition text-sm whitespace-nowrap hover:border-gray-900 hover:text-gray-900 rounded space-x-2 px-4 py-2.5 border border-gray-200'>
+                    Create Tag
+                </button>
+            </div>
             <form
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-misused-promises
                 onSubmit={handleSubmit(onSubmit)}
@@ -95,6 +115,7 @@ const WriteFormModal = () => {
                 </button>
             </form>
         </Modal>
+
     )
 }
 
