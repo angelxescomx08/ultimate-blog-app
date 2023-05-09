@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import slugify from "slugify";
 import { TRPCError } from "@trpc/server";
@@ -14,7 +13,7 @@ export const tagRouter = createTRPCRouter({
                 }
             })
 
-            if(tag){
+            if (tag) {
                 throw new TRPCError({
                     code: 'CONFLICT',
                     message: 'Tag already exist'
@@ -27,5 +26,10 @@ export const tagRouter = createTRPCRouter({
                     slug: slugify(input.name)
                 }
             })
+        }),
+
+    getTags: protectedProcedure
+        .query(async ({ ctx: { prisma } }) => {
+            return await prisma.tag.findMany()
         })
 })

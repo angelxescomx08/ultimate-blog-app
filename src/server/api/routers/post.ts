@@ -5,9 +5,11 @@ import { z } from 'zod'
 
 export const postRouter = createTRPCRouter({
     createPost: protectedProcedure
-        .input(writeFormSchema)
+        .input(writeFormSchema.and(z.object({
+            tagId: z.string().optional()
+        })))
         .mutation(
-            async ({ ctx: { prisma, session }, input: { description, text, title } }) => {
+            async ({ ctx: { prisma, session }, input: { description, text, title, tagId } }) => {
 
                 //validar que el titulo sea único
 
@@ -20,6 +22,11 @@ export const postRouter = createTRPCRouter({
                         author: {
                             connect: {
                                 id: session.user.id
+                            }
+                        },
+                        tags: {
+                            connect: {
+                                id: tagId
                             }
                         }
                     }
@@ -56,7 +63,14 @@ export const postRouter = createTRPCRouter({
                     where: {
                         userId: session?.user.id
                     }
-                } : false
+                } : false,
+                tags: {
+                    select: {
+                        name: true,
+                        id: true,
+                        slug: true
+                    }
+                }
             }
         })
         return post

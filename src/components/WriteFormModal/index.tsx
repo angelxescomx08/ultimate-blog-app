@@ -27,12 +27,15 @@ const WriteFormModal = () => {
 
     const [isTagCreateModalOpen, setIsTagCreateModalOpen] = useState(false)
 
+    const [selectedTagId, setSelectedTagId] = useState('')
+
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const { register, handleSubmit, formState: { errors }, reset } = useForm<WriteFormType>({
         resolver: zodResolver(writeFormSchema)
     })
 
     const postRouter = api.useContext().post
+    const tagRouter = api.useContext().tag
 
     const createPost = api.post.createPost.useMutation({
         onSuccess: async (data, variables, context) => {
@@ -47,26 +50,38 @@ const WriteFormModal = () => {
         }
     })
 
-    const onSubmit = (data: WriteFormType) => createPost.mutate(data);
+    const onSubmit = (data: WriteFormType) => {
+        const mutationData = selectedTagId !== '' ? { ...data, tagId: selectedTagId } : data
+        createPost.mutate(mutationData);
+    }
+
+    const getTags = api.tag.getTags.useQuery()
 
     return (
 
         <Modal isOpen={isWriteModalOpen} onClose={() => setIsWriteModalOpen(false)}>
-            <TagForm
-                isOpen={isTagCreateModalOpen} 
-                onClose={() => setIsWriteModalOpen(false)}
-            />
 
-            <div className='flex w-full space-x-4 items-center my-4'>
-                <div className='z-10 w-4/5'>
-                    <TagsAutocompletion />
-                </div>
-                <button
-                    onClick={() => { setIsTagCreateModalOpen(true) }}
-                    className='transition text-sm whitespace-nowrap hover:border-gray-900 hover:text-gray-900 rounded space-x-2 px-4 py-2.5 border border-gray-200'>
-                    Create Tag
-                </button>
-            </div>
+            {
+                getTags.isSuccess && <>
+                    <TagForm
+                        isOpen={isTagCreateModalOpen}
+                        onClose={() => setIsTagCreateModalOpen(false)}
+                        tagRouter={tagRouter}
+                    />
+
+                    <div className='flex w-full space-x-4 items-center my-4'>
+                        <div className='z-10 w-4/5'>
+                            <TagsAutocompletion tags={getTags.data} setSelectedTagId={setSelectedTagId} />
+                        </div>
+                        <button
+                            onClick={() => { setIsTagCreateModalOpen(true) }}
+                            className='transition text-sm whitespace-nowrap hover:border-gray-900 hover:text-gray-900 rounded space-x-2 px-4 py-2.5 border border-gray-200'>
+                            Create Tag
+                        </button>
+                    </div>
+                </>
+            }
+
             <form
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-misused-promises
                 onSubmit={handleSubmit(onSubmit)}

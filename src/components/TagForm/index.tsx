@@ -13,10 +13,11 @@ export const tagCreateSchema = z.object({
 
 type TagFormProps = {
     isOpen: boolean,
-    onClose: () => void
+    onClose: () => void,
+    tagRouter: any
 }
 
-const TagForm = ({ isOpen, onClose }: TagFormProps) => {
+const TagForm = ({ isOpen, onClose, tagRouter }: TagFormProps) => {
 
     const { register, reset, handleSubmit, formState: { errors } } = useForm<{ name: string, description: string }>({
         resolver: zodResolver(
@@ -26,6 +27,8 @@ const TagForm = ({ isOpen, onClose }: TagFormProps) => {
 
     const createTag = api.tag.createTag.useMutation({
         onSuccess: () => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+            tagRouter.getTags.invalidate()
             toast.success('Tag successfully created')
             reset()
             onClose()

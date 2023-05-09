@@ -64,9 +64,11 @@ const Post = ({ ...post }: PostProps) => {
                     </div>
                     <div className='flex space-x-2 items-center'>
                         {
-                            Array.from({ length: 4 }).map((post, i) => (
-                                <div key={i} className='rounded-3xl bg-gray-200/50 px-5 py-2'>
-                                    tag {i}
+                            post?.tags?.map((tag) => (
+                                <div key={tag.id} className='rounded-3xl bg-gray-200/50 px-5 py-2' onClick={()=>{
+                                    //redirect
+                                }}>
+                                    {tag.name}
                                 </div>
                             ))
                         }
