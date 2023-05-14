@@ -6,10 +6,12 @@ import { z } from 'zod'
 export const postRouter = createTRPCRouter({
     createPost: protectedProcedure
         .input(writeFormSchema.and(z.object({
-            tagId: z.string().optional()
+            tagsIds: z.array(z.object({
+                id: z.string()
+            })).optional()
         })))
         .mutation(
-            async ({ ctx: { prisma, session }, input: { description, text, title, tagId } }) => {
+            async ({ ctx: { prisma, session }, input: { description, text, title, tagsIds } }) => {
 
                 //validar que el titulo sea único
 
@@ -25,9 +27,7 @@ export const postRouter = createTRPCRouter({
                             }
                         },
                         tags: {
-                            connect: {
-                                id: tagId
-                            }
+                            connect: tagsIds
                         }
                     }
                 })

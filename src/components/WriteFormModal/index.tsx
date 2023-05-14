@@ -9,6 +9,12 @@ import { toast } from 'react-hot-toast'
 import { AiOutlineLoading3Quarters } from 'react-icons/ai'
 import TagsAutocompletion from '../TagsAutocompletion';
 import TagForm from '../TagForm';
+import { FaTimes } from 'react-icons/fa'
+
+export type TAG = {
+    id: string;
+    name: string;
+}
 
 type WriteFormType = {
     title: string;
@@ -27,7 +33,7 @@ const WriteFormModal = () => {
 
     const [isTagCreateModalOpen, setIsTagCreateModalOpen] = useState(false)
 
-    const [selectedTagId, setSelectedTagId] = useState('')
+    const [selectedTags, setSelectedTags] = useState<TAG[]>([])
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const { register, handleSubmit, formState: { errors }, reset } = useForm<WriteFormType>({
@@ -51,7 +57,7 @@ const WriteFormModal = () => {
     })
 
     const onSubmit = (data: WriteFormType) => {
-        const mutationData = selectedTagId !== '' ? { ...data, tagId: selectedTagId } : data
+        const mutationData = selectedTags.length > 0 ? { ...data, tagsIds: selectedTags } : data
         createPost.mutate(mutationData);
     }
 
@@ -71,13 +77,39 @@ const WriteFormModal = () => {
 
                     <div className='flex w-full space-x-4 items-center my-4'>
                         <div className='z-10 w-4/5'>
-                            <TagsAutocompletion tags={getTags.data} setSelectedTagId={setSelectedTagId} />
+                            <TagsAutocompletion
+                                tags={getTags.data}
+                                selectedTags={selectedTags}
+                                setSelectedTags={setSelectedTags}
+                            />
                         </div>
                         <button
                             onClick={() => { setIsTagCreateModalOpen(true) }}
                             className='transition text-sm whitespace-nowrap hover:border-gray-900 hover:text-gray-900 rounded space-x-2 px-4 py-2.5 border border-gray-200'>
                             Create Tag
                         </button>
+                    </div>
+                    <div className='w-full flex items-center flex-wrap my-4'>
+                        {
+                            selectedTags.map((tag) => (
+                                <div key={tag.id} className='flex justify-center items-center space-x-2 rounded-3xl bg-gray-200/50 px-5 py-2 m-2 whitespace-nowrap'
+                                    onClick={() => {
+                                        //redirect
+                                    }}
+                                >
+                                    <div>
+                                        {tag.name}
+                                    </div>
+                                    <div 
+                                    className='cursor-pointer'
+                                    onClick={() => setSelectedTags(prev =>
+                                        prev.filter(currentTag => currentTag.id !== tag.id))
+                                    }>
+                                        <FaTimes />
+                                    </div>
+                                </div>
+                            ))
+                        }
                     </div>
                 </>
             }

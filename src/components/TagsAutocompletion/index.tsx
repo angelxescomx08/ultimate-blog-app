@@ -2,13 +2,16 @@ import { type Dispatch, Fragment, type SetStateAction, useMemo, useState } from 
 import { Combobox, Transition } from '@headlessui/react'
 import { HiCheck } from 'react-icons/hi'
 import { HiChevronUpDown } from 'react-icons/hi2'
+import { type TAG } from '../WriteFormModal'
 
 type TagsAutocompletionProps = {
     tags: { id: string, name: string }[];
-    setSelectedTagId: Dispatch<SetStateAction<string>>;
+    selectedTags: TAG[];
+    setSelectedTags: Dispatch<SetStateAction<TAG[]>>;
 }
 
-export default function TagsAutocompletion({ tags, setSelectedTagId }: TagsAutocompletionProps) {
+export default function TagsAutocompletion({ tags, selectedTags, setSelectedTags }: TagsAutocompletionProps) {
+
     const [selected, setSelected] = useState(tags[0])
     const [query, setQuery] = useState('')
 
@@ -24,9 +27,9 @@ export default function TagsAutocompletion({ tags, setSelectedTagId }: TagsAutoc
     }, [query, tags])
 
     return (
-        <Combobox value={selected} onChange={(value) => {
-            setSelected(value)
-            setSelectedTagId(value.id)
+        <Combobox value={selected} onChange={(tag) => {
+            setSelected(tag)
+            setSelectedTags(prev => [...prev, tag])
         }}>
             <div className="relative mt-1">
                 <div className="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-300 sm:text-sm">
@@ -55,14 +58,14 @@ export default function TagsAutocompletion({ tags, setSelectedTagId }: TagsAutoc
                                 Nothing found.
                             </div>
                         ) : (
-                            filteredTags.map((person) => (
+                            filteredTags.map((tag) => (
                                 <Combobox.Option
-                                    key={person.id}
+                                    key={tag.id}
                                     className={({ active }) =>
                                         `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-gray-600 text-white' : 'text-gray-900'
                                         }`
                                     }
-                                    value={person}
+                                    value={tag}
                                 >
                                     {({ selected, active }) => (
                                         <>
@@ -70,9 +73,9 @@ export default function TagsAutocompletion({ tags, setSelectedTagId }: TagsAutoc
                                                 className={`block truncate ${selected ? 'font-medium' : 'font-normal'
                                                     }`}
                                             >
-                                                {person.name}
+                                                {tag.name}
                                             </span>
-                                            {selected ? (
+                                            {selectedTags.includes(tag) ? (
                                                 <span
                                                     className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active ? 'text-white' : 'text-gray-600'
                                                         }`}
