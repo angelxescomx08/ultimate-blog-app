@@ -19,7 +19,7 @@ const config = {
     defaultLocale: "en",
   },
   images: {
-    domains: ['lh3.googleusercontent.com', 'guyezcxqslmeaiidqqko.supabase.co']
+    domains: ['lh3.googleusercontent.com', 'guyezcxqslmeaiidqqko.supabase.co', 'images.unsplash.com']
   }
 };
 export default config;

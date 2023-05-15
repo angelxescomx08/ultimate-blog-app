@@ -21,7 +21,10 @@ const server = z.object({
   // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
-  
+
+  //splash
+  UNSPLASH_API_ACCESS_KEY: z.string(),
+  UNSPLASH_API_SECRET_KEY: z.string(),
 });
 
 /**
@@ -55,6 +58,8 @@ const processEnv = {
   NEXT_PUBLIC_SUPABASE_PUBLIC_URL: process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL,
   NEXT_PUBLIC_SUPABASE_PUBLIC_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_KEY,
 
+  UNSPLASH_API_ACCESS_KEY: process.env.UNSPLASH_API_ACCESS_KEY,
+  UNSPLASH_API_SECRET_KEY: process.env.UNSPLASH_API_SECRET_KEY,
 };
 
 // Don't touch the part below

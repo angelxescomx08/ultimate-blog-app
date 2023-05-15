@@ -6,7 +6,8 @@ import { MainLayout } from '~/layouts'
 import { api } from '~/utils/api'
 import { useCallback, useState } from 'react'
 import CommentSidebar from '~/components/CommentSidebar'
-
+import { BiImageAdd } from 'react-icons/bi'
+import UnsplashGallery from '~/components/UnsplashGallery'
 
 const PostPage = () => {
     const router = useRouter()
@@ -21,6 +22,7 @@ const PostPage = () => {
     const invalidateCurrentPostPage = useCallback(() => {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         postRoute.getPost.invalidate({ slug: router.query.slug as string })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const likePost = api.post.likePost.useMutation({
@@ -36,9 +38,16 @@ const PostPage = () => {
     })
 
     const [showCommentSidebar, setShowCommentSidebar] = useState(false)
+    const [isOpenUnsplashModal, setIsOpenUnsplashModal] = useState(false)
 
     return (
         <MainLayout>
+
+            {post.isSuccess && post.data?.id && <UnsplashGallery
+                isOpenUnsplashModal={isOpenUnsplashModal}
+                setIsOpenUnsplashModal={setIsOpenUnsplashModal}
+                postId={post.data?.id}
+            />}
 
             {post.data?.id && <CommentSidebar
                 showCommentSidebar={showCommentSidebar}
@@ -87,6 +96,10 @@ const PostPage = () => {
             <div className='flex flex-col h-full w-full justify-center items-center p-10'>
                 <div className='max-w-screen-lg w-full flex flex-col space-y-6'>
                     <div className='h-[60vh] relative w-full rounded-xl bg-gray-300 shadow-lg'>
+                        <div onClick={() => setIsOpenUnsplashModal(true)}
+                            className='absolute top-2 left-2 bg-black/30 z-10 cursor-pointer text-white p-2 rounded-xl hover:bg-black'>
+                            <BiImageAdd className='text-2xl' />
+                        </div>
                         <div className='absolute w-full h-full flex items-center justify-center'>
                             <div className='bg-gray-500 bg-opacity-50 rounded-xl p-4 text-white text-3xl'>
                                 {post.data?.title}
