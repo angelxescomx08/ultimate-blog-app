@@ -39,7 +39,7 @@ const Post = ({ ...post }: PostProps) => {
                 </div>
                 <div>
                     <p className='font-semibold'>
-                        <span className='group-hover:underline decoration-indigo-600'>{post.author.name}</span> &#x2022; {dayjs(post.createdAt).format('DD/MM/YYYY')} 
+                        <span className='group-hover:underline decoration-indigo-600'>{post.author.name}</span> &#x2022; {dayjs(post.createdAt).format('DD/MM/YYYY')}
                     </p>
                     <p className='text-sm'>Founder, teacher & developer</p>
                 </div>
@@ -54,7 +54,10 @@ const Post = ({ ...post }: PostProps) => {
                     </p>
                 </div>
                 <div className='col-span-4'>
-                    <div className='bg-gray-300 w-full h-full rounded-xl transition hover:scale-105 transform duration-300 hover:shadow-xl'></div>
+                    <div className='bg-gray-300 w-full h-full rounded-xl transition hover:scale-105 transform duration-300 hover:shadow-xl'>
+                        {post.featuredImage && <Image src={post.featuredImage} alt={post.title} fill className='rounded-xl' />}
+                    </div>
+
                 </div>
             </Link>
             <div>
@@ -65,7 +68,7 @@ const Post = ({ ...post }: PostProps) => {
                     <div className='flex space-x-2 items-center'>
                         {
                             post?.tags?.map((tag) => (
-                                <div key={tag.id} className='rounded-3xl bg-gray-200/50 px-5 py-2' onClick={()=>{
+                                <div key={tag.id} className='rounded-3xl bg-gray-200/50 px-5 py-2' onClick={() => {
                                     //redirect
                                 }}>
                                     {tag.name}
