@@ -8,18 +8,22 @@ const SideSection = () => {
 
     const readingList = api.post.getReadingList.useQuery();
 
+    const suggestions = api.auth.getSuggestions.useQuery()
+
     return (
         <aside className='col-span-4 w-full p-6 flex flex-col space-y-4'>
             <div>
                 <h3 className='my-6 font-semibold text-lg'>People you might be interested</h3>
                 <div className='flex flex-col space-4-4'>
                     {
-                        Array.from({ length: 4 }).map((_, i) => (
-                            <div key={i} className='flex flex-row space-x-5 items-center'>
+                        suggestions.isSuccess && suggestions.data.map((user) => (
+                            <div key={user.id} className='flex flex-row space-x-5 items-center'>
                                 <div className='bg-gray-300 w-10 h-10 rounded-full flex-none'></div>
                                 <div>
-                                    <div className='text-gray-900 font-bold text-sm'>John Doe</div>
-                                    <div className='text-xs'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto, unde.</div>
+                                    <div className='text-gray-900 font-bold text-sm'>{user.name}</div>
+                                    <div className='text-xs'>
+                                        {user.username}
+                                    </div>
                                 </div>
                                 <div>
                                     <button className='flex transition hover:border-gray-900 hover:text-gray-900 rounded items-center space-x-2 px-4 py-2.5 border border-gray-200'>

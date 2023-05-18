@@ -61,7 +61,14 @@ export const authRouter = createTRPCRouter({
                                 where: {
                                     userId: session?.user.id
                                 }
-                            } : false
+                            } : false,
+                            tags: {
+                                select: {
+                                    name: true,
+                                    id: true,
+                                    slug: true
+                                }
+                            },
                         }
                     }
                 }
@@ -102,5 +109,82 @@ export const authRouter = createTRPCRouter({
                     image: publicUrl
                 }
             })
+        }),
+    getSuggestions: protectedProcedure
+        .query(async ({ ctx: { prisma, session } }) => {
+
+            const tagsQuery = {
+                where: {
+                    userId: session.user.id
+                },
+                select: {
+                    post: {
+                        select: {
+                            tags: {
+                                select: {
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                },
+                take: 10
+            }
+
+            const likesPostTags = await prisma.like.findMany(tagsQuery)
+            const bookmarkedPostTags = await prisma.bookmark.findMany(tagsQuery)
+
+            const interestedTags: string[] = []
+
+            likesPostTags.forEach(like => {
+                interestedTags.push(...like.post.tags.map(tag => tag.name))
+            })
+
+            bookmarkedPostTags.forEach(bookmark => {
+                interestedTags.push(...bookmark.post.tags.map(tag => tag.name))
+            })
+
+            const queryObject = {
+                some: {
+                    post: {
+                        tags: {
+                            some: {
+                                name: {
+                                    in: interestedTags
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            const suggestions = await prisma.user.findMany({
+                where: {
+                    OR: [
+                        {
+                            likes: {
+                                ...queryObject
+                            }
+                        },
+                        {
+                            bookmarks: {
+                                ...queryObject
+                            }
+                        }
+                    ],
+                    NOT: {
+                        id: session.user.id
+                    }
+                },
+                select: {
+                    name: true,
+                    image: true,
+                    username: true,
+                    id: true
+                },
+                take: 4
+            })
+
+            return suggestions
         })
 })
