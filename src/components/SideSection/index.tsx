@@ -8,7 +8,13 @@ const SideSection = () => {
 
     const readingList = api.post.getReadingList.useQuery();
 
-    const suggestions = api.auth.getSuggestions.useQuery()
+    const suggestions = api.auth.getSuggestions.useQuery();
+
+    const followUSer = api.auth.followUser.useMutation({
+        onSuccess: () => {
+            console.log('follow');
+        }
+    });
 
     return (
         <aside className='col-span-4 w-full p-6 flex flex-col space-y-4'>
@@ -26,7 +32,11 @@ const SideSection = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <button className='flex transition hover:border-gray-900 hover:text-gray-900 rounded items-center space-x-2 px-4 py-2.5 border border-gray-200'>
+                                    <button
+                                        onClick={() => followUSer.mutate({
+                                            followingUserId: user.id
+                                        })}
+                                        className='flex transition hover:border-gray-900 hover:text-gray-900 rounded items-center space-x-2 px-4 py-2.5 border border-gray-200'>
                                         Follow
                                     </button>
                                 </div>

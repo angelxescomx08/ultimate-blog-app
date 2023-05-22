@@ -27,7 +27,9 @@ export const authRouter = createTRPCRouter({
                     username: true,
                     _count: {
                         select: {
-                            posts: true
+                            posts: true,
+                            followedBy: true,
+                            following: true,
                         }
                     }
                 }
@@ -186,5 +188,77 @@ export const authRouter = createTRPCRouter({
             })
 
             return suggestions
-        })
+        }),
+    followUser: protectedProcedure
+        .input(z.object({
+            followingUserId: z.string()
+        }))
+        .mutation(async ({ ctx: { session, prisma }, input: { followingUserId } }) => {
+            await prisma.user.update({
+                where: {
+                    id: session.user.id
+                },
+                data: {
+                    following: {
+                        connect: {
+                            id: followingUserId
+                        }
+                    }
+                }
+            })
+        }),
+    unfollowUser: protectedProcedure
+        .input(z.object({
+            followingUserId: z.string()
+        }))
+        .mutation(async ({ ctx: { session, prisma }, input: { followingUserId } }) => {
+            await prisma.user.update({
+                where: {
+                    id: session.user.id
+                },
+                data: {
+                    following: {
+                        disconnect: {
+                            id: followingUserId
+                        }
+                    }
+                }
+            })
+        }),
+    getAllFollowers: protectedProcedure
+        .query(async ({ ctx: { prisma, session } }) => {
+            return await prisma.user.findMany({
+                where: {
+                    id: session.user.id
+                },
+                select: {
+                    followedBy: {
+                        select: {
+                            name: true,
+                            username: true,
+                            id: true,
+                            image: true
+                        }
+                    }
+                }
+            })
+        }),
+    getAllFollowing: protectedProcedure
+        .query(async ({ ctx: { prisma, session } }) => {
+            return await prisma.user.findMany({
+                where: {
+                    id: session.user.id
+                },
+                select: {
+                    following: {
+                        select: {
+                            name: true,
+                            username: true,
+                            id: true,
+                            image: true
+                        }
+                    }
+                }
+            })
+        }),
 })

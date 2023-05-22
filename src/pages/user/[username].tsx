@@ -133,6 +133,11 @@ const UserProfilePage = () => {
                             <div className='text-gray-600'>
                                 {userProfile.data?._count.posts ?? 0} Posts
                             </div>
+                            <div className='text-gray-700 flex items-center space-x-4'>
+                                <div>{userProfile.data?._count.followedBy} Followers</div>
+                                <div>{userProfile.data?._count.following} Followings</div>
+                            </div>
+
                             <div>
                                 <button
                                     onClick={() => {
@@ -152,7 +157,7 @@ const UserProfilePage = () => {
                     <div className='my-10 w-full'>
                         {
                             userPosts.isSuccess && userPosts.data?.posts.map((post) => (
-                                <Post {...post} key={post.id} />
+                                <Post {...post} featuredImage={post.author.image} key={post.id} />
                             ))
                         }
                     </div>
