@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react'
+import { toast } from 'react-hot-toast';
 import { api } from '~/utils/api'
 
 const SideSection = () => {
@@ -12,7 +13,7 @@ const SideSection = () => {
 
     const followUSer = api.auth.followUser.useMutation({
         onSuccess: () => {
-            console.log('follow');
+            toast.success('User followed')
         }
     });
 

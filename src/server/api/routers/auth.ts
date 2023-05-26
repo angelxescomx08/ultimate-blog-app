@@ -15,7 +15,7 @@ export const authRouter = createTRPCRouter({
         .input(z.object({
             username: z.string()
         }))
-        .query(async ({ ctx: { prisma }, input: { username } }) => {
+        .query(async ({ ctx: { prisma, session }, input: { username } }) => {
             return await prisma.user.findUnique({
                 where: {
                     username
@@ -31,7 +31,12 @@ export const authRouter = createTRPCRouter({
                             followedBy: true,
                             following: true,
                         }
-                    }
+                    },
+                    followedBy: session?.user.id ? {
+                        where: {
+                            id: session.user.id
+                        }
+                    } : false
                 }
             })
         }),
@@ -194,6 +199,12 @@ export const authRouter = createTRPCRouter({
             followingUserId: z.string()
         }))
         .mutation(async ({ ctx: { session, prisma }, input: { followingUserId } }) => {
+            if (followingUserId === session.user.id) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: "You can't follow yourself"
+                })
+            }
             await prisma.user.update({
                 where: {
                     id: session.user.id
@@ -227,7 +238,7 @@ export const authRouter = createTRPCRouter({
         }),
     getAllFollowers: protectedProcedure
         .query(async ({ ctx: { prisma, session } }) => {
-            return await prisma.user.findMany({
+            return await prisma.user.findUnique({
                 where: {
                     id: session.user.id
                 },
@@ -237,7 +248,12 @@ export const authRouter = createTRPCRouter({
                             name: true,
                             username: true,
                             id: true,
-                            image: true
+                            image: true,
+                            followedBy: {
+                                where: {
+                                    id: session.user.id
+                                }
+                            }
                         }
                     }
                 }
@@ -245,7 +261,7 @@ export const authRouter = createTRPCRouter({
         }),
     getAllFollowing: protectedProcedure
         .query(async ({ ctx: { prisma, session } }) => {
-            return await prisma.user.findMany({
+            return await prisma.user.findUnique({
                 where: {
                     id: session.user.id
                 },
