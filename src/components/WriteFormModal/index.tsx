@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react'
 import Modal from '../Modal'
 import { GlobalContext } from '~/context/GlobalContext'
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod'
 import { api } from '~/utils/api';
@@ -10,6 +10,14 @@ import { AiOutlineLoading3Quarters } from 'react-icons/ai'
 import TagsAutocompletion from '../TagsAutocompletion';
 import TagForm from '../TagForm';
 import { FaTimes } from 'react-icons/fa'
+
+//import ReactQuill from 'react-quill';
+import dynamic from 'next/dynamic';
+const ReactQuill = dynamic(() => import('react-quill'), {
+    ssr: false
+})
+
+import 'react-quill/dist/quill.snow.css';
 
 export type TAG = {
     id: string;
@@ -20,12 +28,14 @@ type WriteFormType = {
     title: string;
     description: string;
     text: string;
+    html: string;
 }
 
 export const writeFormSchema = z.object({
     title: z.string().min(20),
     description: z.string().min(60),
-    text: z.string().min(100)
+    text: z.string().min(100).optional(),
+    html: z.string().min(100)
 })
 
 const WriteFormModal = () => {
@@ -36,7 +46,7 @@ const WriteFormModal = () => {
     const [selectedTags, setSelectedTags] = useState<TAG[]>([])
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<WriteFormType>({
+    const { register, handleSubmit, formState: { errors }, reset, control } = useForm<WriteFormType>({
         resolver: zodResolver(writeFormSchema)
     })
 
@@ -100,11 +110,11 @@ const WriteFormModal = () => {
                                     <div>
                                         {tag.name}
                                     </div>
-                                    <div 
-                                    className='cursor-pointer'
-                                    onClick={() => setSelectedTags(prev =>
-                                        prev.filter(currentTag => currentTag.id !== tag.id))
-                                    }>
+                                    <div
+                                        className='cursor-pointer'
+                                        onClick={() => setSelectedTags(prev =>
+                                            prev.filter(currentTag => currentTag.id !== tag.id))
+                                        }>
                                         <FaTimes />
                                     </div>
                                 </div>
@@ -146,7 +156,7 @@ const WriteFormModal = () => {
                 />
                 {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
                 <p className='text-sm text-red-500 text-left w-full pb-2'>{errors.description?.message}</p>
-                <textarea
+                {/* <textarea
                     id="mainText"
                     cols={10}
                     rows={10}
@@ -154,7 +164,25 @@ const WriteFormModal = () => {
                     className='w-full h-full border border-gray-300 focus:border-gray-600 outline-none p-4 rounded-xl'
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     {...register('text')}
+                /> */}
+
+                <Controller
+                    name='html'
+                    control={control}
+                    render={({ field: { onChange, onBlur, value, ref } }) => (
+                        <div className='w-full'>
+                            <ReactQuill
+                                theme='snow'
+                                onBlur={onBlur}
+                                value={value}
+                                placeholder='Write the body content here'
+                                onChange={onChange}
+                            />
+                        </div>
+                    )}
                 />
+
+
                 {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access*/}
                 <p className='text-sm text-red-500 text-left w-full pb-2'>{errors.text?.message}</p>
                 <button type='submit' onClick={() => { setIsWriteModalOpen(true) }} className='flex transition hover:border-gray-900 hover:text-gray-900 rounded items-center space-x-2 px-4 py-2.5 border border-gray-200'>

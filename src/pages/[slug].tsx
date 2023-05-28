@@ -10,6 +10,7 @@ import { BiImageAdd } from 'react-icons/bi'
 import UnsplashGallery from '~/components/UnsplashGallery'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
+import { Interweave } from 'interweave'
 
 const PostPage = () => {
     const router = useRouter()
@@ -119,6 +120,11 @@ const PostPage = () => {
                     </div>
                     <div>
                         {post.data?.text}
+                    </div>
+                    <div className="prose lg:prose-xl">
+                        <Interweave
+                            content={post.data?.html}
+                        />
                     </div>
                 </div>
             </div>

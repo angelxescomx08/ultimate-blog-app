@@ -44,7 +44,7 @@ const TagForm = ({ isOpen, onClose, tagRouter }: TagFormProps) => {
                 <input
                     type="text"
                     id="title"
-                    placeholder='Title of the blog'
+                    placeholder='Name of the tag'
                     className='w-full h-full border border-gray-300 focus:border-gray-600 outline-none p-4 rounded-xl'
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     {...register('name')}
@@ -55,7 +55,7 @@ const TagForm = ({ isOpen, onClose, tagRouter }: TagFormProps) => {
                 <input
                     type="text"
                     id="title"
-                    placeholder='Title of the blog'
+                    placeholder='Description of the tag'
                     className='w-full h-full border border-gray-300 focus:border-gray-600 outline-none p-4 rounded-xl'
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     {...register('description')}

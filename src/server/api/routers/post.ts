@@ -12,7 +12,7 @@ export const postRouter = createTRPCRouter({
             })).optional()
         })))
         .mutation(
-            async ({ ctx: { prisma, session }, input: { description, text, title, tagsIds } }) => {
+            async ({ ctx: { prisma, session }, input: { description, text, title, tagsIds, html } }) => {
 
                 //validar que el titulo sea único
 
@@ -22,6 +22,7 @@ export const postRouter = createTRPCRouter({
                         description,
                         text,
                         slug: slugify(title),
+                        html,
                         author: {
                             connect: {
                                 id: session.user.id
@@ -92,6 +93,7 @@ export const postRouter = createTRPCRouter({
                     description: true,
                     title: true,
                     text: true,
+                    html: true,
                     likes: session?.user?.id ? {
                         where: {
                             userId: session?.user.id
@@ -257,7 +259,7 @@ export const postRouter = createTRPCRouter({
                 }
             })
 
-            if(post?.authorId !== session.user.id){
+            if (post?.authorId !== session.user.id) {
                 throw new TRPCError({
                     code: 'FORBIDDEN',
                     message: 'You are not the owner of the post'
