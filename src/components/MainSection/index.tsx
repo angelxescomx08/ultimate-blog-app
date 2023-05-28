@@ -12,8 +12,6 @@ const MainSection = () => {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
     })
 
-    console.log(posts.data);
-
     return (
         <main className='col-span-8 border-r border-gray-300 w-full h-full px-24'>
             <div className='flex flex-col space-y-4 w-full py-10'>
