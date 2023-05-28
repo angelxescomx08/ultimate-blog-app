@@ -55,10 +55,10 @@ const WriteFormModal = () => {
 
     const createPost = api.post.createPost.useMutation({
         onSuccess: async (data, variables, context) => {
+            await postRouter.getPosts.invalidate()
             toast.success('Post created successfully');
             setIsWriteModalOpen(false);
             reset();
-            await postRouter.getPost.invalidate()
             console.log({ data, variables, context });
         },
         onError: (error, variables, context) => {
