@@ -86,7 +86,7 @@ export const authRouter = createTRPCRouter({
             imageAsDataUrl: z.string(),//.refine(val => isDataURI(val)),
             username: z.string(),
         }))
-        .mutation(async ({ ctx: { prisma, session }, input: { imageAsDataUrl, username } }) => {
+        .mutation(async ({ ctx: { prisma }, input: { imageAsDataUrl, username } }) => {
             const imageBase64 = imageAsDataUrl.replace(/^.+,/, "")
             const { data, error } = await supabase
                 .storage
@@ -237,10 +237,13 @@ export const authRouter = createTRPCRouter({
             })
         }),
     getAllFollowers: protectedProcedure
-        .query(async ({ ctx: { prisma, session } }) => {
+        .input(z.object({
+            userId: z.string()
+        }))
+        .query(async ({ ctx: { prisma, session }, input: { userId } }) => {
             return await prisma.user.findUnique({
                 where: {
-                    id: session.user.id
+                    id: userId
                 },
                 select: {
                     followedBy: {
@@ -260,10 +263,13 @@ export const authRouter = createTRPCRouter({
             })
         }),
     getAllFollowing: protectedProcedure
-        .query(async ({ ctx: { prisma, session } }) => {
+        .input(z.object({
+            userId: z.string()
+        }))
+        .query(async ({ ctx: { prisma }, input: { userId } }) => {
             return await prisma.user.findUnique({
                 where: {
-                    id: session.user.id
+                    id: userId
                 },
                 select: {
                     following: {

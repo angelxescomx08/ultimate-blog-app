@@ -81,8 +81,13 @@ const UserProfilePage = () => {
         modalType: 'followers'
     })
 
-    const followers = api.auth.getAllFollowers.useQuery()
-    const following = api.auth.getAllFollowing.useQuery()
+    const followers = api.auth.getAllFollowers.useQuery({
+        userId: userProfile.data?.id as string
+    }, { enabled: Boolean(userProfile?.data?.id) })
+
+    const following = api.auth.getAllFollowing.useQuery({
+        userId: userProfile.data?.id as string
+    }, { enabled: Boolean(userProfile?.data?.id) })
 
     const followUser = api.auth.followUser.useMutation({
         onSuccess: async () => {
@@ -92,6 +97,9 @@ const UserProfilePage = () => {
                 userRoute.getUserProfile.invalidate()
             ])
             toast.success('User followed')
+        },
+        onError: (e) => {
+            toast.error(e.message)
         }
     });
 
