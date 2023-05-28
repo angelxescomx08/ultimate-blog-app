@@ -4,9 +4,15 @@ import { HiChevronDown } from 'react-icons/hi'
 import { CiSearch } from 'react-icons/ci'
 import Post from '../Post'
 
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { BiLoaderCircle } from 'react-icons/bi'
 
 const MainSection = () => {
-    const posts = api.post.getPosts.useQuery()
+    const posts = api.post.getPosts.useInfiniteQuery({}, {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+    })
+
+    console.log(posts.data);
 
     return (
         <main className='col-span-8 border-r border-gray-300 w-full h-full px-24'>
@@ -62,13 +68,29 @@ const MainSection = () => {
                     </div>
                 }
 
-                {
-                    posts.isSuccess && posts.data.map((post) => (
-                        <Post {...post} key={post.id} />
-                    ))
-                }
+                {posts.isSuccess && <InfiniteScroll
+                    dataLength={posts.data.pages.flatMap(page => page.posts).length} //This is important field to render the next data
+                    next={posts.fetchNextPage}
+                    hasMore={Boolean(posts.hasNextPage)}
+                    loader={
+                        <div className='w-full h-full flex items-center justify-center'>
+                            <BiLoaderCircle className='animate-spin' />
+                        </div>
+                    }
+                    endMessage={
+                        <p className='text-center'>
+                            <b>Yay! You have seen it all</b>
+                        </p>
+                    }>
+                    {
+                        posts.data.pages.flatMap(page => page.posts).map((post) => (
+                            <Post {...post} key={post.id} />
+                        ))
+                    }
+                </InfiniteScroll>}
+
             </div>
-        </main>
+        </main >
     )
 }
 

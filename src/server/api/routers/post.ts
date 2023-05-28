@@ -4,6 +4,8 @@ import slugify from "slugify";
 import { z } from 'zod'
 import { TRPCError } from "@trpc/server";
 
+const LIMIT = 5
+
 export const postRouter = createTRPCRouter({
     createPost: protectedProcedure
         .input(writeFormSchema.and(z.object({
@@ -35,49 +37,64 @@ export const postRouter = createTRPCRouter({
                 })
             }
         ),
-    getPosts: publicProcedure.query(async ({ ctx: { prisma, session } }) => {
-        const post = await prisma.post.findMany({
-            orderBy: {
-                createdAt: 'desc'
-            },
-            /* include: {
-                author: {
-                    select: {
-                        name: true,
-                        image: true
+    getPosts: publicProcedure
+        .input(z.object({
+            cursor: z.string().nullish(), // <-- "cursor" needs to exist, but can be any type
+        }))
+        .query(async ({ ctx: { prisma, session }, input: { cursor } }) => {
+            const posts = await prisma.post.findMany({
+                orderBy: {
+                    createdAt: 'desc'
+                },
+                /* include: {
+                    author: {
+                        select: {
+                            name: true,
+                            image: true
+                        }
                     }
+                } */
+                select: {
+                    id: true,
+                    slug: true,
+                    title: true,
+                    description: true,
+                    createdAt: true,
+                    author: {
+                        select: {
+                            name: true,
+                            image: true,
+                            username: true
+                        }
+                    },
+                    bookmarks: session?.user.id ? {
+                        where: {
+                            userId: session?.user.id
+                        }
+                    } : false,
+                    tags: {
+                        select: {
+                            name: true,
+                            id: true,
+                            slug: true
+                        }
+                    },
+                    featuredImage: true
+                },
+                cursor: cursor ? { id: cursor } : undefined,
+                take: LIMIT + 1,
+            })
+
+            let nextCursor: typeof cursor | undefined = undefined;
+            if (posts.length > LIMIT) {
+                const nextItem = posts.pop()
+                if (nextItem) {
+                    nextCursor = nextItem.id;
                 }
-            } */
-            select: {
-                id: true,
-                slug: true,
-                title: true,
-                description: true,
-                createdAt: true,
-                author: {
-                    select: {
-                        name: true,
-                        image: true,
-                        username: true
-                    }
-                },
-                bookmarks: session?.user.id ? {
-                    where: {
-                        userId: session?.user.id
-                    }
-                } : false,
-                tags: {
-                    select: {
-                        name: true,
-                        id: true,
-                        slug: true
-                    }
-                },
-                featuredImage: true
             }
-        })
-        return post
-    }),
+
+            return { posts, nextCursor }
+        }),
 
     getPost: publicProcedure
         .input(z.object({
