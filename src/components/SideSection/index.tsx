@@ -7,9 +7,15 @@ import { api } from '~/utils/api'
 
 const SideSection = () => {
 
-    const readingList = api.post.getReadingList.useQuery();
+    const readingList = api.post.getReadingList.useQuery(undefined, {
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+    });
 
-    const suggestions = api.auth.getSuggestions.useQuery();
+    const suggestions = api.auth.getSuggestions.useQuery(undefined, {
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+    });
 
     const followUSer = api.auth.followUser.useMutation({
         onSuccess: () => {

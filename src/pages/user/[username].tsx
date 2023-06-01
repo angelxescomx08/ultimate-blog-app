@@ -27,11 +27,19 @@ const UserProfilePage = () => {
 
     const userProfile = api.auth.getUserProfile.useQuery({
         username: router.query.username as string
-    }, { enabled: !!router.query.username })
+    }, { 
+        enabled: !!router.query.username,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+    })
 
     const userPosts = api.auth.getUserPost.useQuery({
         username: router.query.username as string
-    }, { enabled: !!router.query.username })
+    }, { 
+        enabled: !!router.query.username,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+    })
 
     const [objectImage, setObjectImage] = useState('')
     const [file, setFile] = useState<File | null>(null)
@@ -83,11 +91,19 @@ const UserProfilePage = () => {
 
     const followers = api.auth.getAllFollowers.useQuery({
         userId: userProfile.data?.id as string
-    }, { enabled: Boolean(userProfile?.data?.id) })
+    }, { 
+        enabled: Boolean(userProfile?.data?.id),
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+    })
 
     const following = api.auth.getAllFollowing.useQuery({
         userId: userProfile.data?.id as string
-    }, { enabled: Boolean(userProfile?.data?.id) })
+    }, { 
+        enabled: Boolean(userProfile?.data?.id),
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+    })
 
     const followUser = api.auth.followUser.useMutation({
         onSuccess: async () => {

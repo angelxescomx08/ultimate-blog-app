@@ -47,6 +47,9 @@ const CommentSidebar = ({ showCommentSidebar, setShowCommentSidebar, postId }: C
 
     const getComments = api.post.getComments.useQuery({
         postId
+    }, {
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
     })
 
 

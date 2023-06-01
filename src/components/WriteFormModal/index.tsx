@@ -71,7 +71,10 @@ const WriteFormModal = () => {
         createPost.mutate(mutationData);
     }
 
-    const getTags = api.tag.getTags.useQuery()
+    const getTags = api.tag.getTags.useQuery(undefined, {
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+    })
 
     return (
 

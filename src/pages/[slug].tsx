@@ -19,7 +19,9 @@ const PostPage = () => {
 
     const post = api.post.getPost.useQuery({ slug: router.query.slug as string }, {
         //solo hacer la consulta cuando slug esta definido
-        enabled: !!router.query.slug
+        enabled: !!router.query.slug,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
     })
 
     const invalidateCurrentPostPage = useCallback(() => {

@@ -31,7 +31,11 @@ const UnsplashGallery = ({ isOpenUnsplashModal, setIsOpenUnsplashModal, postId, 
 
     const fetchUnsplashImages = api.unsplash.getImages.useQuery({
         searchQuery: debouncedSearchQuery
-    }, { enabled: Boolean(debouncedSearchQuery) })
+    }, {
+        enabled: Boolean(debouncedSearchQuery),
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+    })
 
     const [selectedImage, setSelectedImage] = useState('')
 

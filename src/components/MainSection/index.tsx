@@ -10,6 +10,8 @@ import { BiLoaderCircle } from 'react-icons/bi'
 const MainSection = () => {
     const posts = api.post.getPosts.useInfiniteQuery({}, {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
     })
 
     return (
