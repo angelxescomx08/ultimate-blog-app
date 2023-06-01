@@ -5,7 +5,7 @@ import { CiBookmarkCheck, CiBookmarkPlus } from 'react-icons/ci'
 import { useState } from 'react'
 import { api, type RouterOutputs } from '~/utils/api'
 
-type PostProps = RouterOutputs['post']['getPosts'][number]
+type PostProps = RouterOutputs['post']['getPosts']['posts'][number]
 
 const Post = ({ ...post }: PostProps) => {
 
