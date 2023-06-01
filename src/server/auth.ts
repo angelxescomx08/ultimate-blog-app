@@ -37,6 +37,9 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+  session: {
+    maxAge: 604800, // 7 dias
+  },
   callbacks: {
     session: ({ session, user }) => ({
       ...session,
@@ -44,14 +47,14 @@ export const authOptions: NextAuthOptions = {
         ...session.user,
         id: user.id,
       },
-    }),
+    })
   },
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
-      profile(profile){
+      profile(profile) {
         return {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           id: profile.sub,
