@@ -22,6 +22,9 @@ const PostPage = () => {
         enabled: !!router.query.slug,
         refetchOnMount: false,
         refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+
+        queryKey: ['post.getPost', { slug: router.query.slug as string }]
     })
 
     const invalidateCurrentPostPage = useCallback(() => {

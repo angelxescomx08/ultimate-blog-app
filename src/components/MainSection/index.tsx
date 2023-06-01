@@ -12,6 +12,9 @@ const MainSection = () => {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
         refetchOnMount: false,
         refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+
+        queryKey: ['post.getPosts', { getNextPageParam: (lastPage: { nextCursor: string | undefined }) => lastPage.nextCursor }]
     })
 
     return (

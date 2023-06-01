@@ -10,11 +10,17 @@ const SideSection = () => {
     const readingList = api.post.getReadingList.useQuery(undefined, {
         refetchOnMount: false,
         refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+
+        queryKey: ['post.getReadingList', undefined]
     });
 
     const suggestions = api.auth.getSuggestions.useQuery(undefined, {
         refetchOnMount: false,
         refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+
+        queryKey: ['auth.getSuggestions', undefined]
     });
 
     const followUSer = api.auth.followUser.useMutation({

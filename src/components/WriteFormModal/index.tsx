@@ -74,6 +74,9 @@ const WriteFormModal = () => {
     const getTags = api.tag.getTags.useQuery(undefined, {
         refetchOnMount: false,
         refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+
+        queryKey: ['tag.getTags', undefined]
     })
 
     return (

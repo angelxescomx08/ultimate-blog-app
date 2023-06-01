@@ -27,18 +27,28 @@ const UserProfilePage = () => {
 
     const userProfile = api.auth.getUserProfile.useQuery({
         username: router.query.username as string
-    }, { 
+    }, {
         enabled: !!router.query.username,
         refetchOnMount: false,
         refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+
+        queryKey: ['auth.getUserProfile', {
+            username: router.query.username as string
+        }]
     })
 
     const userPosts = api.auth.getUserPost.useQuery({
         username: router.query.username as string
-    }, { 
+    }, {
         enabled: !!router.query.username,
         refetchOnMount: false,
         refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+
+        queryKey: ['auth.getUserPost', {
+            username: router.query.username as string
+        }]
     })
 
     const [objectImage, setObjectImage] = useState('')
@@ -91,18 +101,28 @@ const UserProfilePage = () => {
 
     const followers = api.auth.getAllFollowers.useQuery({
         userId: userProfile.data?.id as string
-    }, { 
+    }, {
         enabled: Boolean(userProfile?.data?.id),
         refetchOnMount: false,
         refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+
+        queryKey: ['auth.getAllFollowers', {
+            userId: userProfile.data?.id as string
+        }]
     })
 
     const following = api.auth.getAllFollowing.useQuery({
         userId: userProfile.data?.id as string
-    }, { 
+    }, {
         enabled: Boolean(userProfile?.data?.id),
         refetchOnMount: false,
         refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+
+        queryKey: ['auth.getAllFollowing', {
+            userId: userProfile.data?.id as string
+        }]
     })
 
     const followUser = api.auth.followUser.useMutation({

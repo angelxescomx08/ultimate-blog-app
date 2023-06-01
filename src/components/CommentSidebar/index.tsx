@@ -45,11 +45,12 @@ const CommentSidebar = ({ showCommentSidebar, setShowCommentSidebar, postId }: C
         resolver: zodResolver(CommentPostSchema)
     })
 
-    const getComments = api.post.getComments.useQuery({
-        postId
-    }, {
+    const getComments = api.post.getComments.useQuery({ postId }, {
         refetchOnMount: false,
         refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+
+        queryKey: ['post.getComments', { postId }]
     })
 
 
