@@ -9,6 +9,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 import { generateUsername } from "~/utils/generateUsername";
+import { SupabaseAdapter } from "@next-auth/supabase-adapter"
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -38,7 +39,9 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   session: {
-    maxAge: 604800, // 7 dias
+    strategy: 'database',
+    updateAge: 24 * 60 * 60 * 7, //7 días
+    maxAge: 30 * 24 * 60 * 60,
   },
   callbacks: {
     session: ({ session, user }) => ({
@@ -47,9 +50,13 @@ export const authOptions: NextAuthOptions = {
         ...session.user,
         id: user.id,
       },
-    })
+    }),
   },
-  adapter: PrismaAdapter(prisma),
+  //adapter: PrismaAdapter(prisma),
+  adapter: SupabaseAdapter({
+    url: env.NEXT_PUBLIC_SUPABASE_URL,
+    secret: env.SUPABASE_SERVICE_ROLE_KEY,
+  }),
   providers: [
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
@@ -65,7 +72,7 @@ export const authOptions: NextAuthOptions = {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           image: profile.picture,
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
-          username: generateUsername(profile.name)
+          username: generateUsername(profile.name),
         }
       }
     }),
@@ -79,6 +86,7 @@ export const authOptions: NextAuthOptions = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
+
 };
 
 /**

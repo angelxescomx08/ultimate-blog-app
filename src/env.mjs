@@ -25,6 +25,8 @@ const server = z.object({
   //splash
   UNSPLASH_API_ACCESS_KEY: z.string(),
   UNSPLASH_API_SECRET_KEY: z.string(),
+
+  SUPABASE_SERVICE_ROLE_KEY: z.string(),
 });
 
 /**
@@ -37,6 +39,8 @@ const client = z.object({
   //mias
   NEXT_PUBLIC_SUPABASE_PUBLIC_URL: z.string(),
   NEXT_PUBLIC_SUPABASE_PUBLIC_KEY: z.string(),
+
+  NEXT_PUBLIC_SUPABASE_URL: z.string(),
 });
 
 /**
@@ -60,6 +64,9 @@ const processEnv = {
 
   UNSPLASH_API_ACCESS_KEY: process.env.UNSPLASH_API_ACCESS_KEY,
   UNSPLASH_API_SECRET_KEY: process.env.UNSPLASH_API_SECRET_KEY,
+
+  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+  SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY
 };
 
 // Don't touch the part below
