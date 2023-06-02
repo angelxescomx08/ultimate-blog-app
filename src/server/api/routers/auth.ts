@@ -16,6 +16,11 @@ export const authRouter = createTRPCRouter({
             username: z.string()
         }))
         .query(async ({ ctx: { prisma, session }, input: { username } }) => {
+            const user = await prisma.user.findUnique({
+                where: {
+                    email: session?.user.email as string
+                }
+            })
             return await prisma.user.findUnique({
                 where: {
                     username
@@ -32,9 +37,9 @@ export const authRouter = createTRPCRouter({
                             following: true,
                         }
                     },
-                    followedBy: session?.user.id ? {
+                    followedBy: user && user.id ? {
                         where: {
-                            id: session.user.id
+                            id: user.id
                         }
                     } : false
                 }
@@ -120,9 +125,21 @@ export const authRouter = createTRPCRouter({
     getSuggestions: protectedProcedure
         .query(async ({ ctx: { prisma, session } }) => {
 
+            const user = await prisma.user.findUnique({
+                where: {
+                    email: session.user.email as string
+                }
+            })
+
+            if (!user) {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'No user with suggestions'
+                });
+            }
             const tagsQuery = {
                 where: {
-                    userId: session.user.id
+                    userId: user.id
                 },
                 select: {
                     post: {
@@ -180,7 +197,7 @@ export const authRouter = createTRPCRouter({
                         }
                     ],
                     NOT: {
-                        id: session.user.id
+                        id: user.id
                     }
                 },
                 select: {
@@ -199,7 +216,18 @@ export const authRouter = createTRPCRouter({
             followingUserId: z.string()
         }))
         .mutation(async ({ ctx: { session, prisma }, input: { followingUserId } }) => {
-            if (followingUserId === session.user.id) {
+            const user = await prisma.user.findUnique({
+                where: {
+                    email: session.user.email as string
+                }
+            })
+            if (!user) {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'User not found'
+                })
+            }
+            if (followingUserId === user.id) {
                 throw new TRPCError({
                     code: 'BAD_REQUEST',
                     message: "You can't follow yourself"
@@ -207,7 +235,7 @@ export const authRouter = createTRPCRouter({
             }
             await prisma.user.update({
                 where: {
-                    id: session.user.id
+                    id: user.id
                 },
                 data: {
                     following: {
@@ -223,24 +251,42 @@ export const authRouter = createTRPCRouter({
             followingUserId: z.string()
         }))
         .mutation(async ({ ctx: { session, prisma }, input: { followingUserId } }) => {
-            await prisma.user.update({
+            const user = await prisma.user.findUnique({
                 where: {
-                    id: session.user.id
-                },
-                data: {
-                    following: {
-                        disconnect: {
-                            id: followingUserId
-                        }
-                    }
+                    email: session.user.email as string
                 }
             })
+            if (user) {
+                await prisma.user.update({
+                    where: {
+                        id: user.id
+                    },
+                    data: {
+                        following: {
+                            disconnect: {
+                                id: followingUserId
+                            }
+                        }
+                    }
+                })
+            }
         }),
     getAllFollowers: protectedProcedure
         .input(z.object({
             userId: z.string()
         }))
         .query(async ({ ctx: { prisma, session }, input: { userId } }) => {
+            const user = await prisma.user.findUnique({
+                where: {
+                    email: session.user.email as string
+                }
+            })
+            if (!user) {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Not user found'
+                })
+            }
             return await prisma.user.findUnique({
                 where: {
                     id: userId
@@ -254,7 +300,7 @@ export const authRouter = createTRPCRouter({
                             image: true,
                             followedBy: {
                                 where: {
-                                    id: session.user.id
+                                    id: user.id
                                 }
                             }
                         }

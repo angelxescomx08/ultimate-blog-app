@@ -11,13 +11,15 @@ export const postRouter = createTRPCRouter({
         .input(writeFormSchema.and(z.object({
             tagsIds: z.array(z.object({
                 id: z.string()
-            })).optional()
+            })).optional(),
         })))
         .mutation(
             async ({ ctx: { prisma, session }, input: { description, text, title, tagsIds, html } }) => {
-
-                //validar que el titulo sea único
-
+                const user = await prisma.user.findUnique({
+                    where: {
+                        email: session.user.email as string
+                    }
+                })
                 await prisma.post.create({
                     data: {
                         title,
@@ -27,8 +29,8 @@ export const postRouter = createTRPCRouter({
                         html,
                         author: {
                             connect: {
-                                id: session.user.id
-                            }
+                                id: user?.id
+                            },
                         },
                         tags: {
                             connect: tagsIds
@@ -129,12 +131,19 @@ export const postRouter = createTRPCRouter({
             postId: z.string()
         }))
         .mutation(async ({ ctx: { prisma, session }, input: { postId } }) => {
-            await prisma.like.create({
-                data: {
-                    postId,
-                    userId: session.user.id
+            const user = await prisma.user.findUnique({
+                where: {
+                    email: session.user.email as string
                 }
             })
+            if(user){
+                await prisma.like.create({
+                    data: {
+                        postId,
+                        userId: user.id
+                    }
+                })
+            }
         }),
 
     dislikePost: protectedProcedure
@@ -142,14 +151,21 @@ export const postRouter = createTRPCRouter({
             postId: z.string()
         }))
         .mutation(async ({ ctx: { prisma, session }, input: { postId } }) => {
-            await prisma.like.delete({
+            const user = await prisma.user.findUnique({
                 where: {
-                    userId_postId: {
-                        userId: session.user.id,
-                        postId
-                    }
+                    email: session.user.email as string
                 }
             })
+            if(user){
+                await prisma.like.delete({
+                    where: {
+                        userId_postId: {
+                            userId: user.id,
+                            postId
+                        }
+                    }
+                })
+            }
         }),
 
 
@@ -158,12 +174,19 @@ export const postRouter = createTRPCRouter({
             postId: z.string()
         }))
         .mutation(async ({ ctx: { prisma, session }, input: { postId } }) => {
-            await prisma.bookmark.create({
-                data: {
-                    postId,
-                    userId: session.user.id
+            const user = await prisma.user.findUnique({
+                where: {
+                    email: session.user.email as string
                 }
             })
+            if(user){
+                await prisma.bookmark.create({
+                    data: {
+                        postId,
+                        userId: user.id
+                    }
+                })
+            }
         }),
 
     removeBookmark: protectedProcedure
@@ -171,14 +194,21 @@ export const postRouter = createTRPCRouter({
             postId: z.string()
         }))
         .mutation(async ({ ctx: { prisma, session }, input: { postId } }) => {
-            await prisma.bookmark.delete({
+            const user = await prisma.user.findUnique({
                 where: {
-                    userId_postId: {
-                        userId: session.user.id,
-                        postId
-                    }
+                    email: session.user.email as string
                 }
             })
+            if(user){
+                await prisma.bookmark.delete({
+                    where: {
+                        userId_postId: {
+                            userId: user.id,
+                            postId
+                        }
+                    }
+                })
+            }
         }),
 
     submitComment: protectedProcedure
@@ -187,21 +217,28 @@ export const postRouter = createTRPCRouter({
             postId: z.string()
         }))
         .mutation(async ({ ctx: { prisma, session }, input: { postId, text } }) => {
-            await prisma.comment.create({
-                data: {
-                    text,
-                    author: {
-                        connect: {
-                            id: session.user.id
-                        }
-                    },
-                    post: {
-                        connect: {
-                            id: postId
-                        }
-                    }
+            const user = await prisma.user.findUnique({
+                where: {
+                    email: session.user.email as string
                 }
             })
+            if(user){
+                await prisma.comment.create({
+                    data: {
+                        text,
+                        author: {
+                            connect: {
+                                id: user.id
+                            }
+                        },
+                        post: {
+                            connect: {
+                                id: postId
+                            }
+                        }
+                    }
+                })
+            }
         }),
 
     getComments: publicProcedure
@@ -234,9 +271,20 @@ export const postRouter = createTRPCRouter({
 
     getReadingList: protectedProcedure
         .query(async ({ ctx: { prisma, session } }) => {
+            const user = await prisma.user.findUnique({
+                where: {
+                    email: session.user.email as string
+                }
+            })
+            if(!user){
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'User not found'
+                })
+            }
             const allBookmarks = await prisma.bookmark.findMany({
                 where: {
-                    userId: session.user.id,
+                    userId: user.id,
                 },
                 take: 4,
                 orderBy: {
@@ -270,13 +318,25 @@ export const postRouter = createTRPCRouter({
             postId: z.string()
         }))
         .mutation(async ({ ctx: { prisma, session }, input: { imageUrl, postId } }) => {
+            const user = await prisma.user.findUnique({
+                where: {
+                    email: session.user.email as string
+                }
+            })
             const post = await prisma.post.findUnique({
                 where: {
                     id: postId
                 }
             })
 
-            if (post?.authorId !== session.user.id) {
+            if(!user){
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'User not found'
+                })
+            }
+
+            if (post?.authorId !== user.id) {
                 throw new TRPCError({
                     code: 'FORBIDDEN',
                     message: 'You are not the owner of the post'
