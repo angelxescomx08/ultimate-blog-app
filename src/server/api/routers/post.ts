@@ -20,23 +20,25 @@ export const postRouter = createTRPCRouter({
                         email: session.user.email as string
                     }
                 })
-                await prisma.post.create({
-                    data: {
-                        title,
-                        description,
-                        text,
-                        slug: slugify(title),
-                        html,
-                        author: {
-                            connect: {
-                                id: user?.id
+                if(user){
+                    await prisma.post.create({
+                        data: {
+                            title,
+                            description,
+                            text,
+                            slug: slugify(title),
+                            html,
+                            author: {
+                                connect: {
+                                    id: user.id
+                                },
                             },
-                        },
-                        tags: {
-                            connect: tagsIds
+                            tags: {
+                                connect: tagsIds
+                            }
                         }
-                    }
-                })
+                    })
+                }
             }
         ),
     getPosts: publicProcedure
